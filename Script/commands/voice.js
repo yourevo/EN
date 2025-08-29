@@ -45,8 +45,8 @@ const emojiAudioMap = {
  },
  "😁": {
  url: "https://files.catbox.moe/60cwcg.mp3",
- }
-};
+ captin: "ha... ha"
+ };
 
 module.exports.config = {
  name: "emoji_voice",
