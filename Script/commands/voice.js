@@ -1,95 +1,79 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const request = require('request');
+const axios = require("axios");
+const fs = require("fs");
+const request = require("request");
 
-const app = express();
-const PAGE_ACCESS_TOKEN = 'YOUR_PAGE_ACCESS_TOKEN';
-const VERIFY_TOKEN = 'YOUR_VERIFY_TOKEN';
+const emojiAudioMap = {
+ "😗": {
+ url: "https://drive.google.com/uc?export=download&id=17tACYW27zc7CYR5Ec1pktYMJbi6RK-Qh",
+ caption: "কিরে গ্রুপে এত চুম্মা চুম্মি কিসের ...😘"
+ },
+ "😻": {
+ url: "https://drive.google.com/uc?export=download&id=1lIsUIvmH1GFnI-Uz-2WSy8-5u69yQ0By",
+ caption: "তোমার প্রতি ভালোবাসা দিনকে দিন বাড়ছে... 😍"
+ },
+ "🙂": {
+ url: "https://drive.google.com/uc?export=download&id=1dW9IKuDuzIyJGq7oHGFKHHLm4a7kI4vr",
+ caption: "এই সালা এত সেনটি মারাস কেন ... 🙂"
+ },
+ "😡": {
+ url: "https://drive.google.com/uc?export=download&id=1S_I7b3_f4Eb8znzm10vWn99Y7XHaSPYa",
+ caption: "রাগ কমাও, মাফ করাই বড়ত্ব... 😡"
+ },
+ "🙄": {
+ url: "https://drive.google.com/uc?export=download&id=1gtovrHXVmQHyhK2I9F8d2Xbu7nKAa5GD",
+ caption: "এভাবে তাকিও না তুমি ভেবে লজ্জা লাগে ... 🙄"
+ },
+ "Janu": {
+ url: "https://drive.google.com/uc?export=download&id=1tgSFz6fuRm2abF6VBdsGJh685PwfggQk",
+ caption: "লেবু খাও জান সব ঠিক হয়ে যাবে 😑"
+ },
+ "18+": {
+ url: "https://drive.google.com/uc?export=download&id=1DFPvY_qCHxuqNL7S020ayPN0MN09L3LK",
+ caption: "বিরক্ত করো না জান... 18+"
+ },
+ "🤣": {
+ url: "https://drive.google.com/uc?export=download&id=1Hvy_Xee8dAYp-Nul7iZtAq-xQt6-rNpU",
+ caption: "হাসলে তোমাকে পাগল এর মতো লাগে... 🤣"
+ },
+ "Sad song": {
+ url: "https://drive.google.com/uc?export=download&id=1_gaGY2bJRG3jW0tQtP3dGjSIgkMe7hOO",
+ caption: "যা ভাগ পাগল ছাগল ... Sadsong"
+ },
+ "Nasheed": {
+ url: "https://drive.google.com/uc?export=download&id=1hHLY1Y5Cd_ZlSqvO2FQpOt0t8wbHamJi",
+ caption: "লুঙ্গি খুলে খারাই মুতি ... nasheed"
+ }
+};
 
-app.use(bodyParser.json());
+module.exports.config = {
+ name: "emoji_voice",
+ version: "1.0.0",
+ hasPermssion: 0,
+ credits: "Islamick Chat Modified by Cyber-Sujon",
+ description: "50 emoji = 50 voice response",
+ commandCategory: "noprefix",
+ usages: "🥺 😍 😭 etc.",
+ cooldowns: 5
+};
 
-// Webhook verification
-app.get('/webhook', (req, res) => {
-  const mode = req.query['hub.mode'];
-  const token = req.query['hub.verify_token'];
-  const challenge = req.query['hub.challenge'];
+module.exports.handleEvent = async ({ api, event }) => {
+ const { threadID, messageID, body } = event;
+ if (!body) return;
 
-  if (mode && token) {
-    if (mode === 'subscribe' && token === VERIFY_TOKEN) {
-      console.log('WEBHOOK_VERIFIED');
-      res.status(200).send(challenge);
-    } else {
-      res.sendStatus(403);
-    }
-  }
-});
+ const emoji = body.trim();
+ const audioData = emojiAudioMap[emoji];
 
-// Webhook to receive messages
-app.post('/webhook', (req, res) => {
-  const body = req.body;
+ if (!audioData) return;
 
-  if (body.object === 'page') {
-    body.entry.forEach(entry => {
-      const webhookEvent = entry.messaging[0];
-      const senderPsid = webhookEvent.sender.id;
+ const filePath = `${__dirname}/cache/${encodeURIComponent(emoji)}.mp3`;
 
-      if (webhookEvent.message) {
-        handleMessage(senderPsid, webhookEvent.message);
-      }
-    });
+ const callback = () => api.sendMessage({
+ body: `╭•┄┅════❁🌺❁════┅┄•╮\n\n${audioData.caption}\n\n╰•┄┅════❁🌺❁════┅┄•╯`,
+ attachment: fs.createReadStream(filePath)
+ }, threadID, () => fs.unlinkSync(filePath), messageID);
 
-    res.status(200).send('EVENT_RECEIVED');
-  } else {
-    res.sendStatus(404);
-  }
-});
+ const stream = request(encodeURI(audioData.url));
+ stream.pipe(fs.createWriteStream(filePath)).on("close", () => callback());
+};
 
-// Handle received messages
-function handleMessage(senderPsid, receivedMessage) {
-  let response;
-
-  // Check if message contains attachments
-  if (receivedMessage.attachments) {
-    // Check if attachment is audio (voice message)
-    const audioAttachment = receivedMessage.attachments.find(att => att.type === 'audio');
-
-    if (audioAttachment) {
-      response = { text: 'আপনার ভয়েস মেসেজ পেয়েছি! 😊 ধন্যবাদ।' };
-    } else {
-      response = { text: 'আমি আপনার মেসেজ পেয়েছি!' };
-    }
-  } else if (receivedMessage.text) {
-    // Text message handling
-    response = { text: `আপনি বললেন: "${receivedMessage.text}"` };
-  }
-
-  callSendAPI(senderPsid, response);
-}
-
-// Send message via Facebook Send API
-function callSendAPI(senderPsid, response) {
-  const requestBody = {
-    recipient: { id: senderPsid },
-    message: response
-  };
-
-  request({
-    "🫠": { 
-    uri: 'https://drive.google.com/uc?export=download&id=1DFPvY_qCHxuqNL7S020ayPN0MN09L3LK',
-    qs: { access_token: PAGE_ACCESS_TOKEN },
-    method: 'POST',
-    json: requestBody
-  }, (err, res, body) => {
-    if (!err) {
-      console.log('Message sent!');
-    } else {
-      console.error('Unable to send message:', err);
-    }
-  });
-}
-
-// Start server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Messenger bot listening on port ${PORT}`);
-});
+module.exports.run = () => {};
