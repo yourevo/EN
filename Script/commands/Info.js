@@ -65,10 +65,10 @@ module.exports.run = async function ({ api, event, args, Users, Threads }) {
  😍─꯭─⃝‌‌𝐄𝐛𝐫𝐚𝐡𝐢𝐦 𝐂𝐡𝐚𝐭 𝐁𝐨𝐭😘`;
 
  const imgLinks = [
- "https://i.imgur.com/uVD7Z9k.jpeg",
- "https://i.imgur.com/uVD7Z9k.jpeg",
- "https://i.imgur.com/uVD7Z9k.jpeg/w",
- "https://i.imgur.com/uVD7Z9k.jpeg"
+ "https://drive.google.com/file/d/1UX1F_eqcF5GbTT-r4Hw4ZNMEJ7vx-h9U/view?usp=drivesdk",
+ "https://drive.google.com/file/d/1UX1F_eqcF5GbTT-r4Hw4ZNMEJ7vx-h9U/view?usp=drivesdk",
+ "https://drive.google.com/file/d/1UX1F_eqcF5GbTT-r4Hw4ZNMEJ7vx-h9U/view?usp=drivesdk",
+ "https://drive.google.com/file/d/1UX1F_eqcF5GbTT-r4Hw4ZNMEJ7vx-h9U/view?usp=drivesdk"
  ];
 
  const imgLink = imgLinks[Math.floor(Math.random() * imgLinks.length)];
