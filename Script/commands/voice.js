@@ -42,6 +42,7 @@ const emojiAudioMap = {
  "Nasheed": {
  url: "https://drive.google.com/uc?export=download&id=1hHLY1Y5Cd_ZlSqvO2FQpOt0t8wbHamJi",
  caption: "লুঙ্গি খুলে খারাই মুতি ... nasheed"
+ "😁": "https://files.catbox.moe/60cwcg.mp3",
  }
 };
 
