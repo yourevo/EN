@@ -49,7 +49,7 @@ module.exports.run = async function({ api, event }) {
  attachment: fs.createReadStream(__dirname + "/cache/owner.jpg")
  }, event.threadID, () => fs.unlinkSync(__dirname + "/cache/owner.jpg"));
 
- return request("https://i.imgur.com/UbrP8gj.jpeg")
+ return request("https://drive.google.com/file/d/1UKmw7x-WtUlcS2UVwmVe3y9frGR1yxRR/view?usp=drivesdk")
  .pipe(fs.createWriteStream(__dirname + '/cache/owner.jpg'))
  .on('close', () => callback());
 };
